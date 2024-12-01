@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generátor receptů</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Generátor receptů</h1>
+    <div id="filter-section">
+        <label for="category">Kategorie:</label>
+        <select id="category">
+            <option value="Vše">Vše</option>
+            <option value="Bez lepku">Bez lepku</option>
+            <option value="Veganské">Veganské</option>
+        </select>
+        <h2>Ingredience</h2>
+        <div id="ingredients"></div>
+        <button id="searchRecipes">Vyhledat recepty</button>
+    </div>
+    <div id="recipes-section" class="hidden">
+        <h2>Výsledky</h2>
+        <ul id="recipes"></ul>
+        <button id="backToFilters">Zpět</button>
+    </div>
+    <div id="recipe-detail-section" class="hidden">
+        <h2>Detail receptu</h2>
+        <p id="recipeDetail"></p>
+        <button id="backToRecipes">Zpět</button>
+    </div>
+
+    <script>
+        const ingredients = ["Rajče", "Cibule", "Česnek", "Houby", "Těsto"];
+        const recipes = [
+            { name: "recept a", category: null, steps: "postup pro recept a", ingredients: ["Rajče", "Česnek"] },
+            { name: "recept b", category: "Bez lepku", steps: "postup pro recept b", ingredients: ["Cibule", "Česnek"] },
+            { name: "recept c", category: "Bez lepku", steps: "postup pro recept c", ingredients: ["Těsto", "Houby"] },
+            { name: "recept d", category: "Veganské", steps: "postup pro recept d", ingredients: ["Rajče", "Těsto"] }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const ingredientContainer = document.getElementById("ingredients");
+            const recipesSection = document.getElementById("recipes-section");
+            const filterSection = document.getElementById("filter-section");
+            const recipeDetailSection = document.getElementById("recipe-detail-section");
+            const recipesList = document.getElementById("recipes");
+            const recipeDetail = document.getElementById("recipeDetail");
+
+            ingredients.forEach(ingredient => {
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = ingredient;
+                checkbox.id = `ingredient-${ingredient}`;
+                const label = document.createElement("label");
+                label.for = `ingredient-${ingredient}`;
+                label.textContent = ingredient;
+                ingredientContainer.appendChild(checkbox);
+                ingredientContainer.appendChild(label);
+                ingredientContainer.appendChild(document.createElement("br"));
+            });
+
+            document.getElementById("searchRecipes").addEventListener("click", () => {
+                const selectedIngredients = Array.from(document.querySelectorAll("#ingredients input:checked"))
+                    .map(input => input.value);
+                const selectedCategory = document.getElementById("category").value;
+
+                const filteredRecipes = recipes.filter(recipe => {
+                    const hasAllIngredients = recipe.ingredients.every(ing => selectedIngredients.includes(ing));
+                    return hasAllIngredients && (selectedCategory === "Vše" || recipe.category === selectedCategory);
+                });
+
+                recipesList.innerHTML = "";
+                filteredRecipes.forEach(recipe => {
+                    const li = document.createElement("li");
+                    li.textContent = recipe.name;
+                    li.addEventListener("click", () => {
+                        recipeDetail.textContent = recipe.steps;
+                        recipeDetailSection.classList.remove("hidden");
+                        recipesSection.classList.add("hidden");
+                    });
+                    recipesList.appendChild(li);
+                });
+
+                recipesSection.classList.remove("hidden");
+                filterSection.classList.add("hidden");
+            });
+
+            document.getElementById("backToFilters").addEventListener("click", () => {
+                recipesSection.classList.add("hidden");
+                filterSection.classList.remove("hidden");
+            });
+
+            document.getElementById("backToRecipes").addEventListener("click", () => {
+                recipeDetailSection.classList.add("hidden");
+                recipesSection.classList.remove("hidden");
+            });
+        });
+    </script>
+</body>
+</html>
+
